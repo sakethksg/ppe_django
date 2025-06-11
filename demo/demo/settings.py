@@ -10,23 +10,25 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-import os
-
 # Media settings
 MEDIA_URL = '/media/'  # URL prefix for media files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'myapp', 'media')  # Path to the 'media' directory
 
+# Static files settings
+STATIC_URL = '/static/'  # URL prefix for static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Path to the 'staticfiles' directory
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# YOLO model settings
+YOLO_MODEL_PATH = os.path.join(MEDIA_ROOT, 'best.pt')  # Path to your YOLO model
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!9x5+@n06$+c6d#618jht4-+7jc!!v^#x0@j9^yov^_j=_tg_$'
+SECRET_KEY = 'django-insecure-0!)5kc1w3f#=g5e^$m0lj&amp;i53))b@$hi=wm6id8+=2%wbgtiz6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -121,8 +123,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PPE Detection{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        dark: {
+                            100: '#1a1a1a',
+                            200: '#2d2d2d',
+                            300: '#404040',
+                            400: '#525252',
+                            500: '#666666',
+                            600: '#808080',
+                            700: '#999999',
+                            800: '#b3b3b3',
+                            900: '#cccccc',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'float': 'float 3s ease-in-out infinite',
+                        'wave': 'wave 2s ease-in-out infinite',
+                        'spin': 'spin 1s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        wave: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(-5deg)' },
+                            '75%': { transform: 'rotate(5deg)' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .hover-scale {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+            padding: 1px;
+            border-radius: 0.5rem;
+        }
+
+        .gradient-border > * {
+            background: white;
+            border-radius: 0.5rem;
+        }
+
+        .dark .gradient-border > * {
+            background: #1a1a1a;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .dark .nav-link {
+            color: #e5e5e5;
+        }
+
+        .dark .nav-link:hover,
+        .dark .nav-link.active {
+            color: #ffffff;
+        }
+
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        .dark-mode-button {
+            background-color: #f0f9ff; /* Very light blue for light mode */
+            border: 1px solid #e0f2fe; /* Slightly darker border */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* More noticeable shadow */
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother transition */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            position: relative; /* For the pop effect */
+            overflow: hidden; /* Ensure icons stay within bounds */
+        }
+
+        .dark .dark-mode-button {
+            background-color: #1f2937; /* Darker background for dark mode */
+            border: 1px solid #374151; /* Darker border */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* More prominent shadow in dark mode */
+        }
+
+        .dark-mode-button:hover {
+            background-color: #e0f2fe; /* Lighter hover in light mode */
+            transform: translateY(-2px); /* More pronounced lift on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+        }
+
+        .dark .dark-mode-button:hover {
+            background-color: #2d3748; /* Darker hover in dark mode */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .dark-mode-button:active {
+            transform: translateY(0); /* Press effect */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode-button .icon {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, color 0.3s ease-in-out;
+            position: absolute; /* Position icons relative to button */
+            color: #6b7280; /* Default icon color */
+        }
+
+        .dark .dark-mode-button .icon.sun-icon {
+            opacity: 0;
+            transform: rotate(90deg) scale(0.8); /* Rotate and shrink sun icon */
+        }
+
+        .dark .dark-mode-button .icon.moon-icon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+            color: #fcd34d; /* Yellow for moon icon in dark mode */
+        }
+
+        .dark-mode-button .icon.moon-icon {
+            opacity: 0;
+            transform: rotate(-90deg) scale(0.8); /* Rotate and shrink moon icon */
+        }
+
+        .dark-mode-button .icon.sun-icon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+            color: #0ea5e9; /* Blue for sun icon in light mode */
+        }
+
+        /* Pop effect for click */
+        .dark-mode-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0, 0, 0, 0.1); /* Light ripple effect */
+            border-radius: 9999px;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+        }
+
+        .dark .dark-mode-button::after {
+            background: rgba(255, 255, 255, 0.1); /* Dark ripple effect */
+        }
+
+        .dark-mode-button.clicked::after {
+            width: 150%;
+            height: 150%;
+            opacity: 1;
+            transition: width 0.3s ease-out, height 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+    </style>
+</head>
+<body class="h-full bg-gray-50 dark:bg-dark-100 transition-colors duration-200">
+    <nav class="bg-white dark:bg-dark-200 shadow-sm sticky top-0 z-50 glass-effect">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="{% url 'index' %}" class="flex items-center space-x-2">
+                            <svg class="h-8 w-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            <span class="text-xl font-bold gradient-text">PPE Detection</span>
+                        </a>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{% url 'index' %}" class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                            Home
+                        </a>
+                        <a href="{% url 'upload_file' %}" class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium {% if request.resolver_match.url_name == 'upload_file' %}active{% endif %}">
+                            Upload
+                        </a>
+                        <a href="{% url 'list_files' %}" class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium {% if request.resolver_match.url_name == 'list_files' %}active{% endif %}">
+                            Gallery
+                        </a>
+                        <a href="{% url 'webcam_view' %}" class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium {% if request.resolver_match.url_name == 'webcam_view' %}active{% endif %}">
+                            Webcam
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+                    <button id="dark-mode-button" class="dark-mode-button focus:outline-none" aria-label="Toggle dark mode">
+                        <svg class="w-5 h-5 icon sun-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 11a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-4 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-6-3a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm11.536-9.536a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 011.414-1.414l.707.707zm-7.072 7.072a1 1 0 01-1.414-1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM3 10a1 1 0 01-1 1H1a1 1 0 110-2h1a1 1 0 011 1zm15 0a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-4.536 4.536a1 1 0 01-1.414-1.414l-.707.707a1 1 0 011.414 1.414l.707-.707zm-7.072-7.072a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 011.414-1.414l.707.707z"></path></svg>
+                        <svg class="w-5 h-5 icon moon-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.292 10.999a9.5 9.5 0 11-16.711 0 9.5 9.5 0 0116.711 0z"></path></svg>
+                    </button>
+                </div>
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="hidden h-6 w-6 close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="mobile-menu sm:hidden absolute top-0 left-0 w-full h-full bg-white dark:bg-dark-200 shadow-lg py-4 z-40" id="mobile-menu">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="{% url 'index' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-dark-300 {% if request.resolver_match.url_name == 'index' %}bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-100{% endif %}">
+                    Home
+                </a>
+                <a href="{% url 'upload_file' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-dark-300 {% if request.resolver_match.url_name == 'upload_file' %}bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-100{% endif %}">
+                    Upload
+                </a>
+                <a href="{% url 'list_files' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-dark-300 {% if request.resolver_match.url_name == 'list_files' %}bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-100{% endif %}">
+                    Gallery
+                </a>
+                <a href="{% url 'webcam_view' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-dark-300 {% if request.resolver_match.url_name == 'webcam_view' %}bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-100{% endif %}">
+                    Webcam
+                </a>
+                <button id="mobile-dark-mode-button" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-dark-300">
+                    <span class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 icon sun-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 11a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-4 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-6-3a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm11.536-9.536a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 011.414-1.414l.707.707zm-7.072 7.072a1 1 0 01-1.414-1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM3 10a1 1 0 01-1 1H1a1 1 0 110-2h1a1 1 0 011 1zm15 0a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-4.536 4.536a1 1 0 01-1.414-1.414l-.707.707a1 1 0 011.414 1.414l.707-.707zm-7.072-7.072a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 011.414-1.414l.707.707z"></path></svg>
+                        <svg class="w-5 h-5 mr-2 icon moon-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.292 10.999a9.5 9.5 0 11-16.711 0 9.5 9.5 0 0116.711 0z"></path></svg>
+                        <span>Toggle Dark Mode</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-10">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="bg-white dark:bg-dark-200 shadow mt-12 py-6 text-center glass-effect">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-sm text-gray-500 dark:text-gray-400">&copy; 2024 PPE Detection. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode toggle
+        const toggleDarkMode = () => {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateDarkModeButtonIcon();
+        };
+
+        const updateDarkModeButtonIcon = () => {
+            const sunIcon = document.querySelector('#dark-mode-button .sun-icon');
+            const moonIcon = document.querySelector('#dark-mode-button .moon-icon');
+            const mobileSunIcon = document.querySelector('#mobile-dark-mode-button .sun-icon');
+            const mobileMoonIcon = document.querySelector('#mobile-dark-mode-button .moon-icon');
+
+            if (document.documentElement.classList.contains('dark')) {
+                if (sunIcon) {
+                    sunIcon.style.opacity = '0';
+                    sunIcon.style.transform = 'rotate(90deg) scale(0.8)';
+                }
+                if (moonIcon) {
+                    moonIcon.style.opacity = '1';
+                    moonIcon.style.transform = 'rotate(0deg) scale(1)';
+                }
+                if (mobileSunIcon) {
+                    mobileSunIcon.style.opacity = '0';
+                    mobileSunIcon.style.transform = 'rotate(90deg) scale(0.8)';
+                }
+                if (mobileMoonIcon) {
+                    mobileMoonIcon.style.opacity = '1';
+                    mobileMoonIcon.style.transform = 'rotate(0deg) scale(1)';
+                }
+            } else {
+                if (sunIcon) {
+                    sunIcon.style.opacity = '1';
+                    sunIcon.style.transform = 'rotate(0deg) scale(1)';
+                }
+                if (moonIcon) {
+                    moonIcon.style.opacity = '0';
+                    moonIcon.style.transform = 'rotate(-90deg) scale(0.8)';
+                }
+                if (mobileSunIcon) {
+                    mobileSunIcon.style.opacity = '1';
+                    mobileSunIcon.style.transform = 'rotate(0deg) scale(1)';
+                }
+                if (mobileMoonIcon) {
+                    mobileMoonIcon.style.opacity = '0';
+                    mobileMoonIcon.style.transform = 'rotate(-90deg) scale(0.8)';
+                }
+            }
+        };
+
+        // Set initial theme
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        updateDarkModeButtonIcon();
+
+        // Event listener for dark mode button
+        document.getElementById('dark-mode-button').addEventListener('click', toggleDarkMode);
+        document.getElementById('mobile-dark-mode-button').addEventListener('click', toggleDarkMode);
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('open');
+                mobileMenuButton.querySelector('svg').classList.toggle('hidden');
+                mobileMenuButton.querySelector('.close-icon').classList.toggle('hidden');
+            });
+        }
+
+        // Hide mobile menu when a link is clicked
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                mobileMenuButton.querySelector('svg').classList.remove('hidden');
+                mobileMenuButton.querySelector('.close-icon').classList.add('hidden');
+            });
+        });
+
+        // Add active class to current nav link
+        const navLinks = document.querySelectorAll('.nav-link');
+        const currentPath = window.location.pathname;
+
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+
+        // Hide loading overlay after page load
+        window.addEventListener('load', () => {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+        });
+
+        // Show loading overlay before navigation
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('a').forEach(link => {
+                if (link.hostname === window.location.hostname && !link.hash && link.getAttribute('target') !== '_blank') {
+                    link.addEventListener('click', () => {
+                        const loadingOverlay = document.getElementById('loading-overlay');
+                        if (loadingOverlay) {
+                            loadingOverlay.style.display = 'flex';
+                        }
+                    });
+                }
+            });
+        });
+
+    </script>
+</body>
+</html> 

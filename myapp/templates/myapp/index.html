@@ -1,0 +1,113 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}PPE Detection - Home{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Hero Section -->
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 to-blue-600 dark:from-primary-700 dark:to-blue-700 animate-fade-in">
+        <div class="absolute inset-0 bg-grid-white/[0.05] bg-grid-pattern"></div>
+        <div class="relative px-6 py-16 sm:px-12 sm:py-24 lg:py-32">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                    PPE Detection System
+                </h1>
+                <p class="mt-6 text-lg leading-8 text-primary-100">
+                    Advanced computer vision system for detecting Personal Protective Equipment in real-time.
+                    Ensure workplace safety with our state-of-the-art detection technology.
+                </p>
+                <div class="mt-10 flex items-center justify-center gap-x-6">
+                    <a href="{% url 'upload_file' %}" class="rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary-600 shadow-sm hover:bg-primary-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all duration-200">
+                        Upload Image
+                    </a>
+                    <a href="{% url 'webcam_view' %}" class="rounded-md bg-primary-500/20 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all duration-200">
+                        Live Detection
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="mt-24 sm:mt-32">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="mx-auto max-w-2xl lg:text-center">
+                <h2 class="text-base font-semibold leading-7 text-primary-600 dark:text-primary-400">Advanced Technology</h2>
+                <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+                    Everything you need for PPE detection
+                </p>
+                <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                    Our system combines cutting-edge computer vision with user-friendly
+                    interfaces to provide comprehensive PPE detection solutions.
+                </p>
+            </div>
+            <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center px-4 sm:px-6 lg:px-8">
+                    <div class="bg-gradient-to-br from-purple-600 to-indigo-700 dark:from-purple-800 dark:to-indigo-900 p-8 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in animate-slide-up delay-100">
+                        <div class="p-4 inline-flex items-center justify-center rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-sm text-white mb-4">
+                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Real-time Detection</h3>
+                        <p class="text-gray-100 text-opacity-90">Instant detection of PPE items using advanced computer vision algorithms.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-500 to-blue-600 dark:from-green-700 dark:to-blue-800 p-8 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in animate-slide-up delay-200">
+                        <div class="p-4 inline-flex items-center justify-center rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-sm text-white mb-4">
+                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Secure Processing</h3>
+                        <p class="text-gray-100 text-opacity-90">Your data is processed securely with state-of-the-art encryption and privacy measures.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-yellow-500 to-orange-600 dark:from-yellow-700 dark:to-orange-800 p-8 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in animate-slide-up delay-300">
+                        <div class="p-4 inline-flex items-center justify-center rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-sm text-white mb-4">
+                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Easy Integration</h3>
+                        <p class="text-gray-100 text-opacity-90">Seamlessly integrate with your existing systems and workflows.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="mt-24 sm:mt-32">
+        <div class="relative isolate overflow-hidden bg-gray-900 dark:bg-dark-200 rounded-2xl">
+            <div class="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,theme(colors.primary.500),theme(colors.transparent))]"></div>
+            <div class="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+                <div class="mx-auto max-w-2xl text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                        Ready to get started?
+                    </h2>
+                    <p class="mt-6 text-lg leading-8 text-gray-300">
+                        Start using our PPE detection system today and enhance your workplace safety measures.
+                    </p>
+                    <div class="mt-10 flex items-center justify-center gap-x-6">
+                        <a href="{% url 'upload_file' %}" class="rounded-md bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all duration-200">
+                            Get started
+                        </a>
+                        <a href="{% url 'list_files' %}" class="text-sm font-semibold leading-6 text-white hover:text-primary-400 transition-colors duration-200">
+                            View gallery <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-grid-pattern {
+        background-size: 40px 40px;
+        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                         linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    }
+</style>
+{% endblock %}

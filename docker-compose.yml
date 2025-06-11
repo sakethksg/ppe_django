@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: gunicorn ppe_project.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - /app/static # Exclude static files from bind mount to prevent host overwrite
+      - /app/media # Exclude media files from bind mount to prevent host overwrite
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env # If you have environment variables
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: ppe_db
+      POSTGRES_USER: ppe_user
+      POSTGRES_PASSWORD: ppe_password
+
+volumes:
+  postgres_data: 

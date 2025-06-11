@@ -1,0 +1,148 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Gallery - PPE Detection{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto animate-fade-in">
+    <div class="bg-white dark:bg-dark-100 shadow-sm rounded-lg overflow-hidden card-shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="sm:flex sm:items-center animate-slide-up">
+                <div class="sm:flex-auto">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Detection Gallery</h2>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        A collection of all processed images with PPE detection results
+                    </p>
+                </div>
+                <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                    <a href="{% url 'upload_file' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-primary-600 to-blue-500 hover:from-primary-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 hover-scale">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Upload New Image
+                    </a>
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="mt-6 rounded-md bg-red-50 dark:bg-red-900/20 p-4 animate-slide-up">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800 dark:text-red-400">{{ error }}</h3>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if uploaded_images %}
+            <div class="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {% for image in uploaded_images %}
+                <div class="bg-white dark:bg-dark-200 rounded-xl card-shadow hover-scale animate-fade-in" data-animation-delay="{{ forloop.counter0 }}">
+                    <div class="relative aspect-w-16 aspect-h-9 bg-gray-100 dark:bg-dark-300 flex items-center justify-center overflow-hidden">
+                        {% if image.processed_image %}
+                        <img src="{{ image.processed_image_url }}" alt="Processed Image" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+                        {% else %}
+                        <div class="flex flex-col items-center justify-center w-full h-full py-8">
+                            <svg class="animate-spin h-8 w-8 text-primary-400 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                            </svg>
+                            <span class="text-primary-500 font-semibold">Processing...</span>
+                            <div class="mt-4">
+                                <img src="{{ image.original_image.url }}" alt="Original Image" class="w-24 h-24 object-contain rounded-md border border-gray-200 dark:border-dark-300 shadow">
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate">
+                                {{ image.original_image.name|slice:"8:" }}
+                            </h3>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                                {{ image.uploaded_at|date:"M d, Y" }}
+                            </span>
+                        </div>
+                        {% if image.detection_results %}
+                        <div class="mb-2">
+                            <div class="flex flex-wrap gap-2">
+                                {% for detection in image.detection_results %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400">
+                                    {{ detection.class }} ({{ detection.confidence|floatformat:2 }})
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="mt-4 flex items-center gap-2">
+                            <a href="{{ image.original_image.url }}" target="_blank" class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-gradient-to-r from-primary-600 to-blue-500 text-white hover:from-primary-700 hover:to-blue-600 transition-all duration-200">
+                                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                View Original
+                            </a>
+                            {% if image.processed_image %}
+                            <a href="{{ image.processed_image_url }}" target="_blank" class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200">
+                                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                View Processed
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="mt-8 text-center animate-slide-up" style="animation-delay: 0.1s">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No images</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Get started by uploading a new image.
+                </p>
+                <div class="mt-6">
+                    <a href="{% url 'upload_file' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-primary-600 to-blue-500 hover:from-primary-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 hover-scale">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Upload Image
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add loading state to images
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('load', function() {
+            this.classList.add('loaded');
+        });
+    });
+
+    // Add hover effect to cards
+    document.querySelectorAll('.card-shadow').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Set animation delays for cards
+    document.querySelectorAll('[data-animation-delay]').forEach(card => {
+        const delay = card.dataset.animationDelay * 0.1;
+        card.style.animationDelay = `${delay}s`;
+    });
+</script>
+{% endblock %}

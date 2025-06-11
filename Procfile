@@ -1,0 +1,1 @@
+web: gunicorn ppe_project.wsgi --log-file - --timeout 300 

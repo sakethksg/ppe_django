@@ -1,0 +1,307 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Upload Image - PPE Detection{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+                Upload Image
+            </h1>
+            <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                Upload an image to detect PPE items. We support JPG, PNG, and WebP formats.
+            </p>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="bg-white dark:bg-dark-200 rounded-2xl shadow-sm p-6 sm:p-8">
+            {% if error %}
+            <div class="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
+                            Error
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                            {{ error }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if success %}
+            <div class="mb-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-800 dark:text-green-200">
+                            Success
+                        </h3>
+                        <div class="mt-2 text-sm text-green-700 dark:text-green-300">
+                            {{ success }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="space-y-6" id="upload-form">
+                {% csrf_token %}
+                <div class="space-y-2">
+                    <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Select Image
+                    </label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg hover:border-primary-500 dark:hover:border-primary-400 transition-colors duration-200" id="drop-zone">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600 dark:text-gray-400">
+                                <label for="image" class="relative cursor-pointer rounded-md font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                    <span>Upload a file</span>
+                                    <input id="image" name="image" type="file" class="sr-only" accept="image/*">
+                                </label>
+                                <p class="pl-1">or drag and drop</p>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                PNG, JPG, GIF, WebP up to 10MB
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Info -->
+                <div id="file-info" class="hidden">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-300 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <img id="preview" class="h-12 w-12 object-cover rounded-lg" src="" alt="Preview">
+                            </div>
+                            <div>
+                                <p id="file-name" class="text-sm font-medium text-gray-900 dark:text-white"></p>
+                                <p id="file-size" class="text-sm text-gray-500 dark:text-gray-400"></p>
+                            </div>
+                        </div>
+                        <button type="button" id="remove-file" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div id="progress-container" class="hidden">
+                    <div class="relative pt-1">
+                        <div class="flex mb-2 items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-primary-600 dark:text-primary-400 bg-primary-100 dark:bg-primary-900/20">
+                                    Uploading
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-semibold inline-block text-primary-600 dark:text-primary-400" id="progress-text">
+                                    0%
+                                </span>
+                            </div>
+                        </div>
+                        <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-primary-100 dark:bg-primary-900/20">
+                            <div id="progress-bar" style="width: 0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary-500 transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" id="upload-button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200" disabled>
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white hidden" id="loading-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        {% if original_image and processed_image %}
+        <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2">
+            <div class="bg-white dark:bg-dark-200 rounded-2xl shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Original Image</h3>
+                <img src="{{ original_image.url }}" alt="Original" class="w-full h-auto rounded-lg">
+            </div>
+            <div class="bg-white dark:bg-dark-200 rounded-2xl shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Processed Image</h3>
+                <img src="{{ processed_image.url }}" alt="Processed" class="w-full h-auto rounded-lg">
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('image');
+    const fileInfo = document.getElementById('file-info');
+    const preview = document.getElementById('preview');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeFile = document.getElementById('remove-file');
+    const uploadButton = document.getElementById('upload-button');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const loadingIcon = document.getElementById('loading-icon');
+    const uploadForm = document.getElementById('upload-form');
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight drop zone when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight(e) {
+        dropZone.classList.add('border-primary-500', 'dark:border-primary-400');
+    }
+
+    function unhighlight(e) {
+        dropZone.classList.remove('border-primary-500', 'dark:border-primary-400');
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            if (validateFile(file)) {
+                displayFileInfo(file);
+                uploadButton.disabled = false;
+            }
+        }
+    }
+
+    function validateFile(file) {
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+
+        if (!validTypes.includes(file.type)) {
+            alert('Please upload a valid image file (JPG, PNG, GIF, or WebP)');
+            return false;
+        }
+
+        if (file.size > maxSize) {
+            alert('File size must be less than 10MB');
+            return false;
+        }
+
+        return true;
+    }
+
+    function displayFileInfo(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.classList.remove('hidden');
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function resetForm() {
+        fileInput.value = '';
+        fileInfo.classList.add('hidden');
+        uploadButton.disabled = true;
+        progressContainer.classList.add('hidden');
+        progressBar.style.width = '0%';
+        progressText.textContent = '0%';
+        loadingIcon.classList.add('hidden');
+    }
+
+    removeFile.addEventListener('click', resetForm);
+
+    fileInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            handleFiles(this.files);
+        }
+    });
+
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressBar.style.width = percentComplete + '%';
+                progressText.textContent = Math.round(percentComplete) + '%';
+            }
+        });
+
+        xhr.addEventListener('load', function() {
+            if (xhr.status === 200) {
+                window.location.reload();
+            } else {
+                alert('Upload failed. Please try again.');
+                resetForm();
+            }
+        });
+
+        xhr.addEventListener('error', function() {
+            alert('Upload failed. Please try again.');
+            resetForm();
+        });
+
+        progressContainer.classList.remove('hidden');
+        loadingIcon.classList.remove('hidden');
+        uploadButton.disabled = true;
+
+        xhr.open('POST', this.action, true);
+        xhr.send(formData);
+    });
+</script>
+{% endblock %}

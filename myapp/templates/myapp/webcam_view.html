@@ -1,0 +1,110 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Live Detection - PPE Detection{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto animate-fade-in">
+    <div class="bg-white dark:bg-dark-100 shadow-sm rounded-lg overflow-hidden card-shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="text-center mb-8 animate-slide-up">
+                <div class="inline-flex items-center px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 text-sm font-medium mb-4">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Live Detection Active
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Live PPE Detection</h2>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Real-time detection of personal protective equipment using your webcam
+                </p>
+            </div>
+
+            <div class="relative aspect-video bg-gray-100 dark:bg-dark-200 rounded-lg overflow-hidden shadow-lg card-shadow hover-scale">
+                <div id="loading-overlay" class="absolute inset-0 bg-gray-900/50 flex items-center justify-center z-10">
+                    <div class="text-center">
+                        <svg class="animate-spin h-8 w-8 text-white mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="text-white text-sm">Initializing camera...</p>
+                    </div>
+                </div>
+                <img id="webcam-feed" src="{% url 'webcam_prediction' %}" alt="Live Detection" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <p class="text-sm font-medium">Live Detection Active</p>
+                        <p class="text-xs">Move your cursor away to hide this message</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-gray-50 dark:bg-dark-200 rounded-lg p-4 animate-slide-up" style="animation-delay: 0.1s">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Detection Information</h3>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="bg-white dark:bg-dark-100 p-4 rounded-lg card-shadow hover-scale">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <span class="inline-flex items-center justify-center p-2 bg-gradient-to-r from-primary-600 to-blue-500 rounded-md shadow-lg">
+                                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Helmet Detection</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Real-time helmet detection with confidence scores</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-dark-100 p-4 rounded-lg card-shadow hover-scale">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <span class="inline-flex items-center justify-center p-2 bg-gradient-to-r from-primary-600 to-blue-500 rounded-md shadow-lg">
+                                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Live Preview</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Real-time visualization of detection results</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-center animate-slide-up" style="animation-delay: 0.2s">
+                <a href="{% url 'index' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-dark-100 hover:bg-gray-50 dark:hover:bg-dark-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 hover-scale">
+                    <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const webcamFeed = document.getElementById('webcam-feed');
+    const loadingOverlay = document.getElementById('loading-overlay');
+
+    // Hide loading overlay when image is loaded
+    webcamFeed.addEventListener('load', () => {
+        loadingOverlay.classList.add('hidden');
+    });
+
+    // Show loading overlay if image fails to load
+    webcamFeed.addEventListener('error', () => {
+        loadingOverlay.classList.remove('hidden');
+        loadingOverlay.querySelector('p').textContent = 'Failed to load camera feed. Please refresh the page.';
+    });
+
+    // Refresh the image every 100ms for smooth video-like experience
+    setInterval(() => {
+        webcamFeed.src = "{% url 'webcam_prediction' %}?" + new Date().getTime();
+    }, 100);
+</script>
+{% endblock %}

@@ -33,8 +33,15 @@ RUN mkdir -p static media templates
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
+# Create startup script
+RUN echo '#!/bin/bash\n\
+python manage.py migrate\n\
+python manage.py collectstatic --noinput\n\
+gunicorn ppe_project.wsgi:application --bind 0.0.0.0:8000' > /app/start.sh && \
+chmod +x /app/start.sh
+
 # Expose the port your Django application will run on
 EXPOSE 8000
 
-# Command to run the application using Gunicorn
-CMD ["gunicorn", "ppe_project.wsgi:application", "--bind", "0.0.0.0:8000"] 
+# Start command
+CMD ["/app/start.sh"] 

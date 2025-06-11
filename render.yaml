@@ -5,7 +5,7 @@ services:
     plan: free
     healthCheckPath: /
     buildCommand: docker build -t ppe-detection .
-    startCommand: docker run -p $PORT:8000 ppe-detection
+    startCommand: docker run -p $PORT:8000 -e DATABASE_URL=$DATABASE_URL -e DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY -e DJANGO_DEBUG=$DJANGO_DEBUG -e DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS ppe-detection
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
@@ -20,4 +20,5 @@ services:
 
 databases:
   - name: ppe-db
-    plan: free 
+    plan: free
+    ipAllowList: [] 

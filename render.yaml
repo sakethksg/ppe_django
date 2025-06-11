@@ -4,7 +4,8 @@ services:
     env: docker
     plan: free
     healthCheckPath: /
-    startCommand: gunicorn ppe_project.wsgi:application --bind 0.0.0.0:$PORT
+    buildCommand: docker build -t ppe-detection .
+    startCommand: docker run -p $PORT:8000 ppe-detection
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true

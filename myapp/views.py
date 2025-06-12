@@ -12,9 +12,22 @@ from .models import UploadedImage
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Load YOLO Model
+# Load YOLO Model with better error handling
+model = None
 try:
-    model = YOLO(settings.YOLO_MODEL_PATH)
+    if hasattr(settings, 'YOLO_MODEL_PATH') and os.path.exists(settings.YOLO_MODEL_PATH):
+        logger.info(f"Loading YOLO model from: {settings.YOLO_MODEL_PATH}")
+        model = YOLO(settings.YOLO_MODEL_PATH)
+        logger.info("YOLO model loaded successfully")
+    else:
+        logger.warning(f"YOLO model file not found at: {getattr(settings, 'YOLO_MODEL_PATH', 'Not specified')}")
+        # Try to download a default model
+        try:
+            logger.info("Attempting to download default YOLOv8n model...")
+            model = YOLO('yolov8n.pt')  # This will download the model if not present
+            logger.info("Default YOLOv8n model loaded successfully")
+        except Exception as download_error:
+            logger.error(f"Failed to download default model: {str(download_error)}")
 except Exception as e:
     logger.error(f"Failed to load YOLO model: {str(e)}")
     model = None
@@ -160,10 +173,57 @@ def list_files(request):
 def gen_frames():
     video_capture = None
     try:
-        video_capture = cv2.VideoCapture(0)
-        if not video_capture.isOpened():
-            logger.error("Failed to open webcam")
+        # Try different camera backends and indices
+        camera_backends = [
+            (0, cv2.CAP_DSHOW),    # DirectShow (Windows)
+            (0, cv2.CAP_V4L2),     # Video4Linux2 (Linux)
+            (0, cv2.CAP_ANY),      # Auto-detect backend
+            (1, cv2.CAP_ANY),      # Try camera index 1
+            (2, cv2.CAP_ANY),      # Try camera index 2
+        ]
+        
+        for camera_index, backend in camera_backends:
+            try:
+                logger.info(f"Trying camera index {camera_index} with backend {backend}")
+                video_capture = cv2.VideoCapture(camera_index, backend)
+                
+                if video_capture.isOpened():
+                    # Test if we can read a frame
+                    ret, test_frame = video_capture.read()
+                    if ret and test_frame is not None:
+                        logger.info(f"Successfully opened camera {camera_index} with backend {backend}")
+                        break
+                    else:
+                        video_capture.release()
+                        video_capture = None
+                else:
+                    if video_capture:
+                        video_capture.release()
+                    video_capture = None
+            except Exception as e:
+                logger.warning(f"Failed to open camera {camera_index} with backend {backend}: {str(e)}")
+                if video_capture:
+                    video_capture.release()
+                video_capture = None
+                continue
+        
+        if video_capture is None or not video_capture.isOpened():
+            logger.error("Failed to open any camera")
+            # Generate a placeholder frame indicating no camera
+            placeholder_frame = generate_no_camera_frame()
+            while True:
+                _, buffer = cv2.imencode('.jpg', placeholder_frame)
+                frame = buffer.tobytes()
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                import time
+                time.sleep(1)  # Update every second
             return
+
+        # Set camera properties for better performance
+        video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        video_capture.set(cv2.CAP_PROP_FPS, 30)
 
         while True:
             success, frame = video_capture.read()
@@ -172,19 +232,24 @@ def gen_frames():
                 break
 
             try:
-                results = model(frame)
-                for result in results:
-                    for box, conf, cls in zip(result.boxes.xyxy, result.boxes.conf, result.boxes.cls):
-                        x1, y1, x2, y2 = map(int, box[:4])
-                        class_name = model.names[int(cls)]
-                        confidence = round(float(conf), 2)
+                if model is not None:
+                    results = model(frame)
+                    for result in results:
+                        if result.boxes is not None and len(result.boxes) > 0:
+                            for box, conf, cls in zip(result.boxes.xyxy, result.boxes.conf, result.boxes.cls):
+                                x1, y1, x2, y2 = map(int, box[:4])
+                                class_name = model.names[int(cls)]
+                                confidence = round(float(conf), 2)
 
-                        if class_name == 'helmet' and confidence < 0.7:
-                            class_name = 'no helmet'
+                                if class_name == 'helmet' and confidence < 0.7:
+                                    class_name = 'no helmet'
 
-                        label = f'{class_name} {confidence}'
-                        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                        cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                                label = f'{class_name} {confidence}'
+                                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                                cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                else:
+                    # Add text indicating model not loaded
+                    cv2.putText(frame, "YOLO Model Not Loaded", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
                 _, buffer = cv2.imencode('.jpg', frame)
                 frame = buffer.tobytes()
@@ -199,6 +264,20 @@ def gen_frames():
     finally:
         if video_capture is not None:
             video_capture.release()
+
+def generate_no_camera_frame():
+    """Generate a placeholder frame when no camera is available"""
+    import numpy as np
+    
+    # Create a black frame
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    
+    # Add text
+    cv2.putText(frame, "No Camera Available", (150, 200), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2)
+    cv2.putText(frame, "Please check camera connection", (120, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    cv2.putText(frame, "or try a different browser", (140, 280), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    
+    return frame
 
 def webcam_prediction(request):
     if model is None:

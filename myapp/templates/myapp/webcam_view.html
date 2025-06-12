@@ -17,9 +17,7 @@
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     Real-time detection of personal protective equipment using your webcam
                 </p>
-            </div>
-
-            <div class="relative aspect-video bg-gray-100 dark:bg-dark-200 rounded-lg overflow-hidden shadow-lg card-shadow hover-scale">
+            </div>            <div class="relative aspect-video bg-gray-100 dark:bg-dark-200 rounded-lg overflow-hidden shadow-lg card-shadow hover-scale">
                 <div id="loading-overlay" class="absolute inset-0 bg-gray-900/50 flex items-center justify-center z-10">
                     <div class="text-center">
                         <svg class="animate-spin h-8 w-8 text-white mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -27,6 +25,23 @@
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                         <p class="text-white text-sm">Initializing camera...</p>
+                    </div>
+                </div>
+                <div id="error-overlay" class="absolute inset-0 bg-red-900/50 flex items-center justify-center z-20 hidden">
+                    <div class="text-center text-white p-4">
+                        <svg class="h-12 w-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <h3 class="text-lg font-semibold mb-2">Camera Not Available</h3>
+                        <p class="text-sm mb-4">Unable to access camera. This may be due to:</p>
+                        <ul class="text-xs text-left list-disc list-inside space-y-1 mb-4">
+                            <li>No camera connected to the server</li>
+                            <li>Camera permissions not granted</li>
+                            <li>Running in a containerized environment</li>
+                        </ul>
+                        <button onclick="retryCamera()" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded text-sm transition-all">
+                            Retry
+                        </button>
                     </div>
                 </div>
                 <img id="webcam-feed" src="{% url 'webcam_prediction' %}" alt="Live Detection" class="w-full h-full object-cover">
@@ -90,21 +105,72 @@
 <script>
     const webcamFeed = document.getElementById('webcam-feed');
     const loadingOverlay = document.getElementById('loading-overlay');
+    const errorOverlay = document.getElementById('error-overlay');
+    let errorCount = 0;
+    let maxErrors = 3;
+    let refreshInterval;
+
+    function showError() {
+        loadingOverlay.classList.add('hidden');
+        errorOverlay.classList.remove('hidden');
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    }
+
+    function hideError() {
+        errorOverlay.classList.add('hidden');
+        loadingOverlay.classList.remove('hidden');
+        errorCount = 0;
+    }
+
+    function retryCamera() {
+        hideError();
+        errorCount = 0;
+        startVideoFeed();
+    }
+
+    function startVideoFeed() {
+        // Refresh the image every 100ms for smooth video-like experience
+        refreshInterval = setInterval(() => {
+            const newSrc = "{% url 'webcam_prediction' %}?" + new Date().getTime();
+            webcamFeed.src = newSrc;
+        }, 100);
+    }
 
     // Hide loading overlay when image is loaded
     webcamFeed.addEventListener('load', () => {
+        if (!errorOverlay.classList.contains('hidden')) return;
         loadingOverlay.classList.add('hidden');
+        errorCount = 0; // Reset error count on successful load
     });
 
-    // Show loading overlay if image fails to load
+    // Show error overlay if image fails to load repeatedly
     webcamFeed.addEventListener('error', () => {
-        loadingOverlay.classList.remove('hidden');
-        loadingOverlay.querySelector('p').textContent = 'Failed to load camera feed. Please refresh the page.';
+        errorCount++;
+        console.log(`Camera feed error ${errorCount}/${maxErrors}`);
+        
+        if (errorCount >= maxErrors) {
+            showError();
+        } else {
+            // Try again after a short delay
+            setTimeout(() => {
+                const newSrc = "{% url 'webcam_prediction' %}?" + new Date().getTime();
+                webcamFeed.src = newSrc;
+            }, 1000);
+        }
     });
 
-    // Refresh the image every 100ms for smooth video-like experience
-    setInterval(() => {
-        webcamFeed.src = "{% url 'webcam_prediction' %}?" + new Date().getTime();
-    }, 100);
+    // Start the video feed when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        startVideoFeed();
+    });
+
+    // Clean up interval when leaving page
+    window.addEventListener('beforeunload', () => {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    });
 </script>
 {% endblock %}

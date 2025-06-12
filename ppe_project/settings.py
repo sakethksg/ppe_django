@@ -22,6 +22,12 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Configure YOLO environment
+YOLO_CONFIG_DIR = os.path.join(BASE_DIR, '.yolo_config')
+os.environ['YOLO_CONFIG_DIR'] = YOLO_CONFIG_DIR
+# Ensure the directory exists
+os.makedirs(YOLO_CONFIG_DIR, exist_ok=True)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -154,3 +160,31 @@ YOLO_MODEL_PATH = os.path.join(BASE_DIR, 'yolov8n.pt')
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+
+# OpenCV and Camera settings
+# Disable OpenCV warnings for headless environments
+os.environ['OPENCV_LOG_LEVEL'] = 'ERROR'
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'django.log'),
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'myapp': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

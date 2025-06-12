@@ -1,0 +1,21 @@
+{
+  "settings_version": "0.0.6",
+  "datasets_dir": "C:\\Users\\ksgsa\\OneDrive\\Documents\\GitHub\\ppe_django\\datasets",
+  "weights_dir": "weights",
+  "runs_dir": "runs",
+  "uuid": "24a7513b65f494c621e61033223ae9980788922cba7e6e62bb61aa97ec57cb54",
+  "sync": true,
+  "api_key": "",
+  "openai_api_key": "",
+  "clearml": true,
+  "comet": true,
+  "dvc": true,
+  "hub": true,
+  "mlflow": true,
+  "neptune": true,
+  "raytune": true,
+  "tensorboard": false,
+  "wandb": false,
+  "vscode_msg": true,
+  "openvino_msg": true
+}

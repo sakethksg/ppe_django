@@ -14,7 +14,7 @@ This project provides a comprehensive solution for Personal Protective Equipment
 
 ## Demo
 
-Check out a live demo of the project [here](https://ppe-django.onrender.com) (replace with actual link).
+Check out a live demo of the project [here](https://ppe-django.onrender.com) .
 
 ## Setup
 
